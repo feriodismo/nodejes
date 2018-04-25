@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Exponential Grow</title>
+</head>
+<body>
+	<script>
+
+		var valor = 0; // Machine working
+		var exponent;
+		var loopTimer;
+		window.addEventListener("keyup", function(event) {
+   			 event.preventDefault();
+    			if (event.keyCode === 13) {
+      			  valor-- // Machine working
+      			  exponent = Math.pow(.95, valor);
+				  loopTime = Math.floor(power * 1000);
+
+   			 }
+			});
+		window.addEventListener('click', function(){
+			valor++ //Machine working
+			
+			exponent = Math.pow(.95, valor);
+			loopTime = Math.floor(power * 1000);
+			
+		})
+	</script>
+</body>
+</html>
