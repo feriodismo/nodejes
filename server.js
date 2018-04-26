@@ -11,12 +11,13 @@ const server = express()
 // Primero creamos la conexion (recordar instalar el modulo de mysql y requirlo al inicio de server.js)
 // Usar una cuenta de phpmyadmin con contrasenia
 var con = mysql.createConnection({
-  host: "localhost",
-  user: "FabioNode",
-  password: "hola12",
-  database: "nodejes",
+  host: "us-cdbr-iron-east-05.cleardb.net",
+  user: "beea010e225dca",
+  password: "e3268919",
+  database: "heroku_2b6cf2fafd8e77a",
 });
-
+// mysql://beea010e225dca:e3268919@us-cdbr-iron-east-05.cleardb.net/heroku_2b6cf2fafd8e77a?reconnect=true
+// mysql --host=us-cdbr-iron-east-05.cleardb.net --user=beea010e225dca --password=e3268919 --reconnect heroku_2b6cf2fafd8e77a < nodejes.sql
 // 
 con.connect(function(err) {
   if (err) throw err;
@@ -39,7 +40,7 @@ con.connect(function(err) {
   con.query("SELECT MAX(id) AS relive FROM max_live", function (err, result, fields) {
     if (err) throw err;
     io.sockets.emit('printRelive', result)
-    console.log(result)
+    // console.log(result)
   });
 
   }
@@ -88,7 +89,7 @@ searchingMaxLive();
 			var sql = "INSERT INTO max_live (id, pixel) VALUES ('', '"+lineWidth+"')";
 			con.query(sql, function (err, result) {
     			if (err) throw err;
-    			console.log(result);
+    			// console.log(result);
   			});
 			clearInterval(growingInterval);
 			lineWidth = 0;
@@ -100,7 +101,7 @@ searchingMaxLive();
 	growingInterval = setInterval(function(){
 		lineWidth += increment;
 		io.sockets.emit('shareLineWidth', lineWidth);
-		console.log(lineWidth);
+		// console.log(lineWidth);
 	},loopTimer)
 	}
 
