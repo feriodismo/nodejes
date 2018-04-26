@@ -27,7 +27,7 @@ socket.on('printMaxLive', function(result){
 })
 
 socket.on('printRelive', function(result){
-	relive.innerHTML = 'veces que ha resusitado la linea: '+result[0].relive
+	relive.innerHTML = 'veces que ha resusitado la linea: '+result.length
 })
 
 

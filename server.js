@@ -10,7 +10,7 @@ const server = express()
 
 // Primero creamos la conexion (recordar instalar el modulo de mysql y requirlo al inicio de server.js)
 // Usar una cuenta de phpmyadmin con contrasenia
-var con = mysql.createConnection({
+var con = mysql.createPool({
   host: "us-cdbr-iron-east-05.cleardb.net",
   user: "beea010e225dca",
   password: "e3268919",
@@ -19,11 +19,11 @@ var con = mysql.createConnection({
 // mysql://beea010e225dca:e3268919@us-cdbr-iron-east-05.cleardb.net/heroku_2b6cf2fafd8e77a?reconnect=true
 // mysql --host=us-cdbr-iron-east-05.cleardb.net --user=beea010e225dca --password=e3268919 --reconnect heroku_2b6cf2fafd8e77a < nodejes.sql
 // 
-con.connect(function(err) {
-  if (err) throw err;
-  console.log("Connected to database!");
+// con.connect(function(err) {
+//   if (err) throw err;
+//   console.log("Connected to database!");
 
-});
+// });
 
  // con.query("SELECT nombre FROM prueba WHERE id='1'", function (err, result, fields) {
  //    if (err) throw err;
@@ -31,19 +31,26 @@ con.connect(function(err) {
  //    console.log(result[0].nombre);
  // });
   function searchingMaxLive(){
-  
-  con.query("SELECT MAX(pixel) AS maximo FROM max_live", function (err, result, fields) {
-    if (err) throw err;
-    io.sockets.emit('printMaxLive', result)
-  });
-
-  con.query("SELECT MAX(id) AS relive FROM max_live", function (err, result, fields) {
-    if (err) throw err;
-    io.sockets.emit('printRelive', result)
-    // console.log(result)
-  });
-
-  }
+con.getConnection(function(err, connection) {
+	console.log("Pooling | max_live query");
+	con.query("SELECT MAX(pixel) AS maximo FROM max_live", function (err, result, fields) {
+    	io.sockets.emit('printMaxLive', result)
+    	connection.release();
+    	console.log("Releasing | max_live query")
+    	if (err) throw err;
+    
+  	});
+});
+con.getConnection(function(err, connection) {
+	console.log("Pooling | times relive query");
+	con.query("SELECT * FROM max_live", function (err, result, fields) {
+		io.sockets.emit('printRelive', result)
+		connection.release();
+		console.log("Releasing | times relive query")
+    	if (err) throw err;
+	});
+});
+}
 
 
 const io = socketIO(server);
@@ -86,11 +93,16 @@ searchingMaxLive();
 		growTheLine();
 
 		if(workingMachines.length === 0){
-			var sql = "INSERT INTO max_live (id, pixel) VALUES ('', '"+lineWidth+"')";
-			con.query(sql, function (err, result) {
-    			if (err) throw err;
-    			// console.log(result);
-  			});
+			con.getConnection(function(err, connection) {
+				var sql = "INSERT INTO max_live (id, pixel) VALUES ('', '"+lineWidth+"')";
+				console.log("Pooling | max_live insert");
+				con.query(sql, function (err, result) {
+					connection.release();
+					console.log("Releasing | max_live insert")
+    				if (err) throw err;
+    				// console.log(result);
+  				});
+			});
 			clearInterval(growingInterval);
 			lineWidth = 0;
 		}
